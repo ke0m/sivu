@@ -68,7 +68,18 @@ def plot_wavelet(wav, dt, spectrum=True, show=True, **kwargs):
       plt.show()
 
 
-def plot_imgpoff(oimg, dx, dz, zoff, xloc, oh, dh, show=True, **kwargs):
+def plot_imgpoff(
+    oimg,
+    dx,
+    dz,
+    zoff,
+    xloc,
+    ohx,
+    dhx,
+    show=True,
+    figname=None,
+    **kwargs,
+):
   """
   Makes a plot of the image and the extended axis at a specified location
 
@@ -77,20 +88,20 @@ def plot_imgpoff(oimg, dx, dz, zoff, xloc, oh, dh, show=True, **kwargs):
     xloc - the location at which to extract the offset gather [samples]
   """
   # Get image dimensions
-  nh = oimg.shape[0]
-  nz = oimg.shape[1]
-  nx = oimg.shape[2]
+  nhx = oimg.shape[1]
+  nz = oimg.shape[2]
+  nx = oimg.shape[-1]
   fig, ax = plt.subplots(
       1,
       2,
-      figsize=(kwargs.get('wbox', 15), kwargs.get('hbox', 8)),
-      gridspec_kw={'width_ratios': [2, 1]},
+      figsize=(kwargs.get('wbox', 10), kwargs.get('hbox', 5)),
+      gridspec_kw={'width_ratios': [kwargs.get('wratio', 3), 1]},
   )
   # Plot the image
-  ax[0].imshow(
-      oimg[zoff, :, :],
+  im1 = ax[0].imshow(
+      oimg[0, zoff, :, 0, :],
       extent=[0.0, (nx) * dx, (nz) * dz, 0.0],
-      interpolation=kwargs.get('interp', 'sinc'),
+      interpolation=kwargs.get('interp', 'bilinear'),
       cmap=kwargs.get('cmap', 'gray'),
   )
   # Plot a line at the specified image point
@@ -101,10 +112,10 @@ def plot_imgpoff(oimg, dx, dz, zoff, xloc, oh, dh, show=True, **kwargs):
   ax[0].set_ylabel('Z (km)', fontsize=kwargs.get('labelsize', 14))
   ax[0].tick_params(labelsize=kwargs.get('labelsize', 14))
   # Plot the extended axis
-  ax[1].imshow(
-      oimg[:, :, xloc].T,
-      extent=[oh, kwargs.get('hmax', oh + (nh + 1) * dh), (nz) * dz, 0.0],
-      interpolation=kwargs.get('interp', 'sinc'),
+  im2 = ax[1].imshow(
+      oimg[0, :, :, 0, xloc].T,
+      extent=[ohx, kwargs.get('hmax', ohx + (nhx + 1) * dhx), (nz) * dz, 0.0],
+      interpolation=kwargs.get('interp', 'bilinear'),
       cmap=kwargs.get('cmap', 'gray'),
       aspect=1.0,
   )
@@ -112,8 +123,10 @@ def plot_imgpoff(oimg, dx, dz, zoff, xloc, oh, dh, show=True, **kwargs):
   ax[1].set_ylabel(' ', fontsize=kwargs.get('labelsize', 14))
   ax[1].tick_params(labelsize=kwargs.get('labelsize', 14))
   ax[1].set_yticks([])
-  plt.subplots_adjust(wspace=-0.4)
-  if (show):
+  plt.subplots_adjust(wspace=kwargs.get('wspace', -0.4))
+  if figname is not None:
+    plt.savefig(figname, bbox_inches='tight', dpi=150, transparent=True)
+  if show:
     plt.show()
 
 
@@ -521,7 +534,7 @@ def plot_imgvelptb(
   return ax
 
 
-def plot3d(
+def plot_3d(
     data,
     os=[0.0, 0.0, 0.0],
     ds=[1.0, 1.0, 1.0],
@@ -675,7 +688,7 @@ def plot3d(
         kwargs.get('wbar', 0.02),
         kwargs.get('hbar', 0.78)
     ])
-    cbar = fig.colorbar(im, cbar_ax, format='%.2f')
+    cbar = fig.colorbar(im, cbar_ax, format=kwargs.get('cbar_format', '%.2f'))
     cbar.ax.tick_params(labelsize=kwargs.get('ticksize', 14))
     cbar.set_label(kwargs.get('barlabel', ''),
                    fontsize=kwargs.get("barlabelsize", 13))
@@ -1040,6 +1053,15 @@ def plot_img2d(img, **kwargs) -> None:
     ax.axes.get_yaxis().set_visible(False)
   ax.set_title(kwargs.get('title', ' '), fontsize=kwargs.get('labelsize', 15))
   ax.tick_params(labelsize=kwargs.get('labelsize', 15))
+  if kwargs.get('cbar', False):
+    cbar_ax = fig.add_axes([
+        kwargs.get('barx', 0.91),
+        kwargs.get('barz', 0.15),
+        kwargs.get('wbar', 0.02),
+        kwargs.get('hbar', 0.70)
+    ])
+    cbar = fig.colorbar(im1, cbar_ax)
+    cbar.ax.tick_params(labelsize=kwargs.get('labelsize', 15))
   # Check if a box is to be plotted
   nx_box, nz_box = kwargs.get('nx_box', 0.0), kwargs.get('nz_box', 0.0)
   if (nx_box != 0 and nz_box != 0):
@@ -1143,6 +1165,15 @@ def plot_dat2d(dat, **kwargs) -> None:
   ax.set_ylabel('Time (s)', fontsize=kwargs.get('labelsize', 15))
   ax.set_title(kwargs.get('title', ' '), fontsize=kwargs.get('labelsize', 15))
   ax.tick_params(labelsize=kwargs.get('labelsize', 15))
+  if kwargs.get('cbar', False):
+    cbar_ax = fig.add_axes([
+        kwargs.get('barx', 0.91),
+        kwargs.get('barz', 0.15),
+        kwargs.get('wbar', 0.02),
+        kwargs.get('hbar', 0.70)
+    ])
+    cbar = fig.colorbar(im1, cbar_ax)
+    cbar.ax.tick_params(labelsize=kwargs.get('labelsize', 15))
   # Check if a box is to be plotted
   ntr_box, nt_box = kwargs.get('nx_box', 0.0), kwargs.get('nt_box', 0.0)
   if (ntr_box != 0 and nt_box != 0):

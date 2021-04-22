@@ -23,7 +23,8 @@ def remove_colorbar(ipath, cropsize, iftype='png', oftype='png', opath=None):
   if (oftype == 'png'):
     # Padded image
     imp = Image.new('RGBA', isz, (255, 0, 0, 0))
-    imp.paste(im1, imp.getbbox())
+    imp.paste(im1, im1.getbbox())
+    #imp.paste(im1, im1.getbbox())
     if (opath is None):
       base = ipath.split('.' + iftype)[0]
       opath = base + '-nocbar' + '.' + oftype

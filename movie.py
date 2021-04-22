@@ -673,10 +673,7 @@ def viewcube3d(data,
 
   prd = kwargs.get('prd', None)
   if prd is not None:
-    if data.shape != prd.shape:
-      raise ValueError(
-          "Input image and fault probabilites must have same shape")
-    mask = np.ma.masked_where(prd <= pmin, prd)
+    mask = np.ma.masked_where(prd <= kwargs.get('prbmin', 0.0), prd)
     # Transpose if requested
     if (not kwargs.get('transp', False)):
       mask = np.expand_dims(mask, axis=0)
@@ -684,6 +681,9 @@ def viewcube3d(data,
     else:
       mask = (np.expand_dims(mask, axis=-1)).T
       mask = np.transpose(mask, (0, 1, 3, 2))
+    if data.shape != mask.shape:
+      raise ValueError(
+          "Input image and fault probabilites must have same shape")
 
   def bytes2float(img):
     """ Converts an array of bytes (uint8) to floats """
@@ -736,7 +736,7 @@ def viewcube3d(data,
                 os[0], os[0] + (ns[0]) * ds[0], os[1], os[1] + (ns[1]) * ds[1]
             ],
             vmin=kwargs.get('prbmin', 0.0),
-            vmax=kwargs.get('prbmax', 0.0),
+            vmax=kwargs.get('prbmax', 1.0),
             cmap='jet',
         )
       ax[0, 0].set_ylabel(label2, fontsize=kwargs.get('labelsize', 14))
@@ -795,7 +795,7 @@ def viewcube3d(data,
                 os[1], os[1] + (ns[1]) * ds[1], os[2] + (ns[2]) * ds[2], os[2]
             ],
             vmin=kwargs.get('prbmin', 0.0),
-            vmax=kwargs.get('prbmax', 0.0),
+            vmax=kwargs.get('prbmax', 1.0),
             cmap='jet',
         )
       ax[1, 1].set_xlabel(label2, fontsize=kwargs.get('labelsize', 14))
@@ -860,7 +860,7 @@ def viewcube3d(data,
                 os[0], os[0] + (ns[0]) * ds[0], os[2] + ds[2] * (ns[2]), os[2]
             ],
             vmin=kwargs.get('prbmin', 0.0),
-            vmax=kwargs.get('prbmax', 0.0),
+            vmax=kwargs.get('prbmax', 1.0),
             cmap='jet',
         )
       ax[1, 0].tick_params(labelsize=kwargs.get('ticksize', 14))
@@ -943,7 +943,7 @@ def viewcube3d(data,
                 os[0], os[0] + (ns[0]) * ds[0], os[2] + ds[2] * (ns[2]), os[2]
             ],
             vmin=kwargs.get('prbmin', 0.0),
-            vmax=kwargs.get('prbmax', 0.0),
+            vmax=kwargs.get('prbmax', 1.0),
             cmap='jet',
         )
       ax[1, 0].plot(loc1 * np.ones((ns[2],)), x3, c='k')
@@ -979,7 +979,7 @@ def viewcube3d(data,
                 os[1], os[1] + (ns[1]) * ds[1], os[2] + (ns[2]) * ds[2], os[2]
             ],
             vmin=kwargs.get('prbmin', 0.0),
-            vmax=kwargs.get('prbmax', 0.0),
+            vmax=kwargs.get('prbmax', 1.0),
             cmap='jet',
         )
       ax[1, 1].plot(loc2 * np.ones((ns[2],)), x3, c='k')
@@ -1020,7 +1020,7 @@ def viewcube3d(data,
                 os[0], os[0] + (ns[0]) * ds[0], os[1], os[1] + (ns[1]) * ds[1]
             ],
             vmin=kwargs.get('prbmin', 0.0),
-            vmax=kwargs.get('prbmax', 0.0),
+            vmax=kwargs.get('prbmax', 1.0),
             cmap='jet',
         )
       ax[0, 0].plot(loc1 * np.ones((ns[1],)), x2, c='k')
@@ -1096,7 +1096,7 @@ def viewcube3d(data,
                 os[0], os[0] + (ns[0]) * ds[0], os[2] + ds[2] * (ns[2]), os[2]
             ],
             vmin=kwargs.get('prbmin', 0.0),
-            vmax=kwargs.get('prbmax', 0.0),
+            vmax=kwargs.get('prbmax', 1.0),
             cmap='jet',
         )
       ax[1, 0].plot(loc1 * np.ones((ns[2],)), x3, c='k')
@@ -1132,7 +1132,7 @@ def viewcube3d(data,
                 os[1], os[1] + (ns[1]) * ds[1], os[2] + (ns[2]) * ds[2], os[2]
             ],
             vmin=kwargs.get('prbmin', 0.0),
-            vmax=kwargs.get('prbmax', 0.0),
+            vmax=kwargs.get('prbmax', 1.0),
             cmap='jet',
         )
       ax[1, 1].plot(loc2 * np.ones((ns[2],)), x3, c='k')
@@ -1173,7 +1173,7 @@ def viewcube3d(data,
                 os[0], os[0] + (ns[0]) * ds[0], os[1], os[1] + (ns[1]) * ds[1]
             ],
             vmin=kwargs.get('prbmin', 0.0),
-            vmax=kwargs.get('prbmax', 0.0),
+            vmax=kwargs.get('prbmax', 1.0),
             cmap='jet',
         )
       ax[0, 0].plot(loc1 * np.ones((ns[1],)), x2, c='k')
@@ -1263,7 +1263,7 @@ def viewcube3d(data,
         aspect='auto',
         extent=[os[0], os[0] + (ns[0]) * ds[0], os[2] + ds[2] * (ns[2]), os[2]],
         vmin=kwargs.get('prbmin', 0.0),
-        vmax=kwargs.get('prbmax', 0.0),
+        vmax=kwargs.get('prbmax', 1.0),
         cmap='jet',
     )
   ax[1, 0].tick_params(labelsize=kwargs.get('ticksize', 14))
@@ -1292,7 +1292,7 @@ def viewcube3d(data,
         aspect='auto',
         extent=[os[1], os[1] + (ns[1]) * ds[1], os[2] + (ns[2]) * ds[2], os[2]],
         vmin=kwargs.get('prbmin', 0.0),
-        vmax=kwargs.get('prbmax', 0.0),
+        vmax=kwargs.get('prbmax', 1.0),
         cmap='jet',
     )
   ax[1, 1].tick_params(labelsize=kwargs.get('ticksize', 14))
@@ -1325,13 +1325,13 @@ def viewcube3d(data,
   )
   if prd is not None:
     mslc = mask[curr_pos, i3, :, :]
-    ax[1, 1].imshow(
+    ax[0, 0].imshow(
         np.flip(mslc, 0),
         interpolation='bilinear',
         aspect='auto',
         extent=[os[0], os[0] + (ns[0]) * ds[0], os[1], os[1] + (ns[1]) * ds[1]],
         vmin=kwargs.get('prbmin', 0.0),
-        vmax=kwargs.get('prbmax', 0.0),
+        vmax=kwargs.get('prbmax', 1.0),
         cmap='jet',
     )
   ax[0, 0].tick_params(labelsize=kwargs.get('ticksize', 14))

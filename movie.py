@@ -671,6 +671,20 @@ def viewcube3d(data,
   label2 = kwargs.get('label2', ' ')
   label3 = kwargs.get('label3', ' ')
 
+  prd = kwargs.get('prd', None)
+  if prd is not None:
+    mask = np.ma.masked_where(prd <= kwargs.get('prbmin', 0.0), prd)
+    # Transpose if requested
+    if (not kwargs.get('transp', False)):
+      mask = np.expand_dims(mask, axis=0)
+      mask = np.transpose(mask, (0, 1, 3, 2))
+    else:
+      mask = (np.expand_dims(mask, axis=-1)).T
+      mask = np.transpose(mask, (0, 1, 3, 2))
+    if data.shape != mask.shape:
+      raise ValueError(
+          "Input image and fault probabilites must have same shape")
+
   def bytes2float(img):
     """ Converts an array of bytes (uint8) to floats """
     imgtmp = img - 255 / 2.
@@ -712,6 +726,19 @@ def viewcube3d(data,
           vmax=vmax,
           cmap=kwargs.get('cmap', 'gray'),
       )
+      if prd is not None:
+        mslc = mask[curr_pos, i3, :, :]
+        ax[0, 0].imshow(
+            np.flip(mslc, 0),
+            interpolation='bilinear',
+            aspect='auto',
+            extent=[
+                os[0], os[0] + (ns[0]) * ds[0], os[1], os[1] + (ns[1]) * ds[1]
+            ],
+            vmin=kwargs.get('prbmin', 0.0),
+            vmax=kwargs.get('prbmax', 1.0),
+            cmap='jet',
+        )
       ax[0, 0].set_ylabel(label2, fontsize=kwargs.get('labelsize', 14))
       ax[0, 0].tick_params(labelsize=kwargs.get('ticksize', 14))
       del ax[0, 0].lines[:]
@@ -758,6 +785,19 @@ def viewcube3d(data,
           vmax=vmax,
           cmap=kwargs.get('cmap', 'gray'),
       )
+      if prd is not None:
+        mslc = mask[curr_pos, :, :, i1]
+        ax[1, 1].imshow(
+            mslc,
+            interpolation='bilinear',
+            aspect='auto',
+            extent=[
+                os[1], os[1] + (ns[1]) * ds[1], os[2] + (ns[2]) * ds[2], os[2]
+            ],
+            vmin=kwargs.get('prbmin', 0.0),
+            vmax=kwargs.get('prbmax', 1.0),
+            cmap='jet',
+        )
       ax[1, 1].set_xlabel(label2, fontsize=kwargs.get('labelsize', 14))
       ax[1, 1].tick_params(labelsize=kwargs.get('ticksize', 14))
       del ax[1, 1].lines[:]
@@ -799,7 +839,6 @@ def viewcube3d(data,
 
       slc = bytes2float(data[curr_pos, :, i2, :]) if byte else data[curr_pos, :,
                                                                     i2, :]
-
       ax[1, 0].imshow(
           slc,
           interpolation=kwargs.get('interp', 'none'),
@@ -811,6 +850,19 @@ def viewcube3d(data,
           vmax=vmax,
           cmap=kwargs.get('cmap', 'gray'),
       )
+      if prd is not None:
+        mslc = mask[curr_pos, :, i2, :]
+        ax[1, 0].imshow(
+            mslc,
+            interpolation='bilinear',
+            aspect='auto',
+            extent=[
+                os[0], os[0] + (ns[0]) * ds[0], os[2] + ds[2] * (ns[2]), os[2]
+            ],
+            vmin=kwargs.get('prbmin', 0.0),
+            vmax=kwargs.get('prbmax', 1.0),
+            cmap='jet',
+        )
       ax[1, 0].tick_params(labelsize=kwargs.get('ticksize', 14))
       del ax[1, 1].lines[:]
       ax[1, 0].plot(loc1 * np.ones((ns[2],)), x3, c='k')
@@ -881,6 +933,19 @@ def viewcube3d(data,
           vmax=vmax,
           cmap=kwargs.get('cmap', 'gray'),
       )
+      if prd is not None:
+        mslc = mask[curr_pos, :, i2, :]
+        ax[1, 0].imshow(
+            mslc,
+            interpolation='bilinear',
+            aspect='auto',
+            extent=[
+                os[0], os[0] + (ns[0]) * ds[0], os[2] + ds[2] * (ns[2]), os[2]
+            ],
+            vmin=kwargs.get('prbmin', 0.0),
+            vmax=kwargs.get('prbmax', 1.0),
+            cmap='jet',
+        )
       ax[1, 0].plot(loc1 * np.ones((ns[2],)), x3, c='k')
       ax[1, 0].plot(x1, loc3 * np.ones((ns[0],)), c='k')
       ax[1, 0].set_xlabel(label1, fontsize=kwargs.get('labelsize', 14))
@@ -904,6 +969,19 @@ def viewcube3d(data,
           vmax=vmax,
           cmap=kwargs.get('cmap', 'gray'),
       )
+      if prd is not None:
+        mslc = mask[curr_pos, :, :, i1]
+        ax[1, 1].imshow(
+            mslc,
+            interpolation='bilinear',
+            aspect='auto',
+            extent=[
+                os[1], os[1] + (ns[1]) * ds[1], os[2] + (ns[2]) * ds[2], os[2]
+            ],
+            vmin=kwargs.get('prbmin', 0.0),
+            vmax=kwargs.get('prbmax', 1.0),
+            cmap='jet',
+        )
       ax[1, 1].plot(loc2 * np.ones((ns[2],)), x3, c='k')
       ax[1, 1].plot(x2, loc3 * np.ones((ns[1],)), c='k')
       ax[1, 1].set_xlabel(label2, fontsize=kwargs.get('labelsize', 14))
@@ -932,6 +1010,19 @@ def viewcube3d(data,
           vmax=vmax,
           cmap=kwargs.get('cmap', 'gray'),
       )
+      if prd is not None:
+        mslc = mask[curr_pos, i3, :, :]
+        ax[0, 0].imshow(
+            np.flip(mslc, 0),
+            interpolation='bilinear',
+            aspect='auto',
+            extent=[
+                os[0], os[0] + (ns[0]) * ds[0], os[1], os[1] + (ns[1]) * ds[1]
+            ],
+            vmin=kwargs.get('prbmin', 0.0),
+            vmax=kwargs.get('prbmax', 1.0),
+            cmap='jet',
+        )
       ax[0, 0].plot(loc1 * np.ones((ns[1],)), x2, c='k')
       ax[0, 0].plot(x1, loc2 * np.ones((ns[0],)), c='k')
       ax[0, 0].set_ylabel(label2, fontsize=kwargs.get('labelsize', 14))
@@ -995,6 +1086,19 @@ def viewcube3d(data,
           vmax=vmax,
           cmap=kwargs.get('cmap', 'gray'),
       )
+      if prd is not None:
+        mslc = mask[curr_pos, :, i2, :]
+        ax[1, 0].imshow(
+            mslc,
+            interpolation='bilinear',
+            aspect='auto',
+            extent=[
+                os[0], os[0] + (ns[0]) * ds[0], os[2] + ds[2] * (ns[2]), os[2]
+            ],
+            vmin=kwargs.get('prbmin', 0.0),
+            vmax=kwargs.get('prbmax', 1.0),
+            cmap='jet',
+        )
       ax[1, 0].plot(loc1 * np.ones((ns[2],)), x3, c='k')
       ax[1, 0].plot(x1, loc3 * np.ones((ns[0],)), c='k')
       ax[1, 0].set_xlabel(label1, fontsize=kwargs.get('labelsize', 14))
@@ -1018,6 +1122,19 @@ def viewcube3d(data,
           vmax=vmax,
           cmap=kwargs.get('cmap', 'gray'),
       )
+      if prd is not None:
+        mslc = mask[curr_pos, :, :, i1]
+        ax[1, 1].imshow(
+            mslc,
+            interpolation='bilinear',
+            aspect='auto',
+            extent=[
+                os[1], os[1] + (ns[1]) * ds[1], os[2] + (ns[2]) * ds[2], os[2]
+            ],
+            vmin=kwargs.get('prbmin', 0.0),
+            vmax=kwargs.get('prbmax', 1.0),
+            cmap='jet',
+        )
       ax[1, 1].plot(loc2 * np.ones((ns[2],)), x3, c='k')
       ax[1, 1].plot(x2, loc3 * np.ones((ns[1],)), c='k')
       ax[1, 1].set_xlabel(label2, fontsize=kwargs.get('labelsize', 14))
@@ -1046,6 +1163,19 @@ def viewcube3d(data,
           vmax=vmax,
           cmap=kwargs.get('cmap', 'gray'),
       )
+      if prd is not None:
+        mslc = mask[curr_pos, i3, :, :]
+        ax[0, 0].imshow(
+            np.flip(mslc, 0),
+            interpolation='bilinear',
+            aspect='auto',
+            extent=[
+                os[0], os[0] + (ns[0]) * ds[0], os[1], os[1] + (ns[1]) * ds[1]
+            ],
+            vmin=kwargs.get('prbmin', 0.0),
+            vmax=kwargs.get('prbmax', 1.0),
+            cmap='jet',
+        )
       ax[0, 0].plot(loc1 * np.ones((ns[1],)), x2, c='k')
       ax[0, 0].plot(x1, loc2 * np.ones((ns[0],)), c='k')
       ax[0, 0].set_ylabel(label2, fontsize=kwargs.get('labelsize', 14))
@@ -1125,6 +1255,17 @@ def viewcube3d(data,
       vmax=vmax,
       cmap=kwargs.get('cmap', 'gray'),
   )
+  if prd is not None:
+    mslc = mask[curr_pos, :, i2, :]
+    ax[1, 0].imshow(
+        mslc,
+        interpolation='bilinear',
+        aspect='auto',
+        extent=[os[0], os[0] + (ns[0]) * ds[0], os[2] + ds[2] * (ns[2]), os[2]],
+        vmin=kwargs.get('prbmin', 0.0),
+        vmax=kwargs.get('prbmax', 1.0),
+        cmap='jet',
+    )
   ax[1, 0].tick_params(labelsize=kwargs.get('ticksize', 14))
   ax[1, 0].plot(loc1 * np.ones((ns[2],)), x3, c='k')
   ax[1, 0].plot(x1, loc3 * np.ones((ns[0],)), c='k')
@@ -1143,6 +1284,17 @@ def viewcube3d(data,
       vmax=vmax,
       cmap=kwargs.get('cmap', 'gray'),
   )
+  if prd is not None:
+    mslc = mask[curr_pos, :, :, i1]
+    im = ax[1, 1].imshow(
+        mslc,
+        interpolation='bilinear',
+        aspect='auto',
+        extent=[os[1], os[1] + (ns[1]) * ds[1], os[2] + (ns[2]) * ds[2], os[2]],
+        vmin=kwargs.get('prbmin', 0.0),
+        vmax=kwargs.get('prbmax', 1.0),
+        cmap='jet',
+    )
   ax[1, 1].tick_params(labelsize=kwargs.get('ticksize', 14))
   ax[1, 1].plot(loc2 * np.ones((ns[2],)), x3, c='k')
   ax[1, 1].plot(x2, loc3 * np.ones((ns[1],)), c='k')
@@ -1171,6 +1323,17 @@ def viewcube3d(data,
       vmax=vmax,
       cmap=kwargs.get('cmap', 'gray'),
   )
+  if prd is not None:
+    mslc = mask[curr_pos, i3, :, :]
+    ax[0, 0].imshow(
+        np.flip(mslc, 0),
+        interpolation='bilinear',
+        aspect='auto',
+        extent=[os[0], os[0] + (ns[0]) * ds[0], os[1], os[1] + (ns[1]) * ds[1]],
+        vmin=kwargs.get('prbmin', 0.0),
+        vmax=kwargs.get('prbmax', 1.0),
+        cmap='jet',
+    )
   ax[0, 0].tick_params(labelsize=kwargs.get('ticksize', 14))
   ax[0, 0].plot(loc1 * np.ones((ns[1],)), x2, c='k')
   ax[0, 0].plot(x1, loc2 * np.ones((ns[0],)), c='k')
@@ -1188,7 +1351,20 @@ def viewcube3d(data,
   ax4.tick_params(labelsize=kwargs.get('ticksize', 14))
 
   # Color bar
-  if (kwargs.get('cbar', False)):
+  if prd is not None:
+    fig.subplots_adjust(right=0.87)
+    cbar_ax = fig.add_axes([
+        kwargs.get('barx', 0.91),
+        kwargs.get('barz', 0.11),
+        kwargs.get('wbar', 0.02),
+        kwargs.get('hbar', 0.78)
+    ])
+    cbar = fig.colorbar(im, cbar_ax, format='%.2f')
+    cbar.ax.tick_params(labelsize=kwargs.get('ticksize', 14))
+    cbar.set_label(kwargs.get('barlabel', 'Fault probability'),
+                   fontsize=kwargs.get("barlabelsize", 13))
+    cbar.draw_all()
+  elif (kwargs.get('cbar', False)):
     fig.subplots_adjust(right=0.87)
     cbar_ax = fig.add_axes([
         kwargs.get('barx', 0.91),

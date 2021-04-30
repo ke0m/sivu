@@ -1618,11 +1618,11 @@ def qc_f3data(
   """
   nsht = len(nrec)
   if (nsht != len(srcx) and nsht != len(srcy)):
-    raise Exception("Source X/Y coordinates must be same length as nrec")
+    raise ValueError("Source X/Y coordinates must be same length as nrec")
 
   ntr = len(recx)
   if (dat.shape[0] != ntr):
-    raise Exception(
+    raise ValueError(
         "Data must have same number of traces as receiver coordinates")
 
   pclip = kwargs.get('pclip', 1.0)
@@ -1644,7 +1644,7 @@ def qc_f3data(
   srcy *= 0.001
   recy *= 0.001
 
-  curr_pos, beg, end = 0, nrec[0], nrec[1]
+  curr_pos, beg, end = 0, 0, nrec[0]
 
   def key_event(e):
     nonlocal curr_pos, beg, end

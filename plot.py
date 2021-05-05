@@ -114,7 +114,8 @@ def plot_imgpoff(
   # Plot the extended axis
   im2 = ax[1].imshow(
       oimg[0, :, :, 0, xloc].T,
-      extent=[ohx, kwargs.get('hmax', ohx + (nhx + 1) * dhx), (nz) * dz, 0.0],
+      extent=[ohx,
+              kwargs.get('hmax', ohx + (nhx + 1) * dhx), (nz) * dz, 0.0],
       interpolation=kwargs.get('interp', 'bilinear'),
       cmap=kwargs.get('cmap', 'gray'),
       aspect=1.0,
@@ -189,6 +190,8 @@ def plot_imgpang(
     ax[0].plot(lx, lz, color='k', linewidth=2)
   ax[0].set_xlabel('X (km)', fontsize=kwargs.get('labelsize', 14))
   ax[0].set_ylabel('Z (km)', fontsize=kwargs.get('labelsize', 14))
+  ax[0].set_title('%s' % kwargs.get('title', ""),
+                  fontsize=kwargs.get('labelsize', 14))
   ax[0].tick_params(labelsize=kwargs.get('labelsize', 14))
   # Extended image amplitudes
   amin = np.min(aimg)
@@ -1338,3 +1341,61 @@ def plot_rhoimg2d(img, rho, **kwargs) -> None:
     plt.show()
   if (figname is not None):
     plt.savefig(figname, dpi=150, transparent=True, bbox_inches='tight')
+
+
+def plot_acq(
+    srcx,
+    srcy,
+    recx,
+    recy,
+    slc,
+    ox=469.800,
+    oy=6072.350,
+    dx=0.025,
+    dy=0.025,
+    srcs=True,
+    recs=False,
+    figname=None,
+    **kwargs,
+):
+  """
+  Plots the acqusition geometry on a depth/time slice
+
+  Parameters:
+    srcx    - source x coordinates
+    srcy    - source y coordinates
+    recx    - receiver x coordinatesq
+    recy    - receiver y coordinates
+    slc     - time or depth slice [ny,nx]
+    ox      - slice x origin
+    oy      - slice y origin
+    dx      - slice x sampling [0.025]
+    dy      - slice y sampling [0.025]
+    recs    - plot only the receivers (toggles on/off the receivers)
+    cmap    - 'grey' (colormap grey for image, jet for velocity)
+    figname - output name for figure [None]
+  """
+  nx, ny = slc.shape
+  oxw = ox + 200 * dx
+  oyw = oy + 5 * dy
+  cmap = kwargs.get('cmap', 'gray')
+  fig = plt.figure(figsize=(14, 7))
+  ax = fig.gca()
+  ax.imshow(np.flipud(slc.T),
+            cmap=cmap,
+            extent=[oxw, oxw + nx * dx, oyw, oyw + ny * dy])
+  if (srcs):
+    srcxp = srcx * 0.001
+    srcyp = srcy * 0.001
+    ax.scatter(srcxp, srcyp, marker='*', color='tab:red')
+  if (recs):
+    recxp = recx * 0.001
+    recyp = recy * 0.001
+    ax.scatter(recxp, recyp, marker='v', color='tab:green')
+  ax.set_xlabel('X (km)', fontsize=kwargs.get('fsize', 15))
+  ax.set_ylabel('Y (km)', fontsize=kwargs.get('fsize', 15))
+  ax.tick_params(labelsize=kwargs.get('fsize', 15))
+  if (figname is not None):
+    plt.savefig(figname, dpi=150, transparent=True, bbox_inches='tight')
+  if (kwargs.get('show', True)):
+    plt.show()

@@ -560,11 +560,13 @@ def plot_3d(
   else:
     data = (np.expand_dims(data, axis=-1)).T
     data = np.transpose(data, (0, 1, 3, 2))
+  ds = [1.0, ds[0], ds[2], ds[1]]
+  ds = np.flip(ds)
+  os = [0.0, os[0], os[2], os[1]]
+  os = np.flip(os)
   # Get the shape of the cube
   ns = np.flip(data.shape)
   # Make the coordinates for the cross hairs
-  ds = np.append(np.flip(ds), 1.0)
-  os = np.append(np.flip(os), 0.0)
   x1 = np.linspace(os[0], os[0] + ds[0] * (ns[0]), ns[0])
   x2 = np.linspace(os[1], os[1] + ds[1] * (ns[1]), ns[1])
   x3 = np.linspace(os[2], os[2] + ds[2] * (ns[2]), ns[2])
@@ -576,11 +578,11 @@ def plot_3d(
     vmin = np.min(data) * kwargs.get('pclip', 1.0)
     vmax = np.max(data) * kwargs.get('pclip', 1.0)
 
-  loc1 = kwargs.get('loc1', int(ns[0] / 2 * ds[0] + os[0]))
+  loc1 = kwargs.get('loc1', ns[0] / 2 * ds[0] + os[0])
   i1 = int((loc1 - os[0]) / ds[0])
-  loc2 = kwargs.get('loc2', int(ns[1] / 2 * ds[1] + os[1]))
+  loc2 = kwargs.get('loc2', ns[1] / 2 * ds[1] + os[1])
   i2 = int((loc2 - os[1]) / ds[1])
-  loc3 = kwargs.get('loc3', int(ns[2] / 2 * ds[2] + os[2]))
+  loc3 = kwargs.get('loc3', ns[2] / 2 * ds[2] + os[2])
   i3 = int((loc3 - os[2]) / ds[2])
   ax1, ax2, ax3, ax4 = None, None, None, None
   curr_pos = 0

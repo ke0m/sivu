@@ -1025,7 +1025,7 @@ def plot_img2d(img, **kwargs) -> None:
   """
   # Image dimensions
   if (len(img.shape) != 2):
-    raise Exception("Image must be two-dimensional len(img.shape) = %d" %
+    raise ValueError("Image must be two-dimensional len(img.shape) = %d" %
                     (len(img.shape)))
   if (kwargs.get('transp', False)):
     img = img.T
